@@ -1,0 +1,50 @@
+100. Userdb and Contactdb creation.
+	Userdb creation.
+	Contactdb creation.
+	Connection establishment.
+	Testing the creations and connection.
+
+101. Creation of signup page for user.
+	Set the password validation.
+	Encrypt the password
+	Add the user to userdb
+	Testing by login
+	Testing the signup page by giving various names.
+
+102. Creation of login page for user.
+	Validate the user
+	Testing with various names
+	If correct then permits
+
+103. Create the contact display page.
+	Include sorting algorithm for show the contact names in alphabetical order
+	Check whether all the contact names will be listed or not
+	Check all the contact names in alphabetical order
+
+104. Create the add contact page.
+	Checking of unique number
+	Add the contact
+	Check the db whether the contact will added or not
+	Check through view page whether the new contact is displayed or not
+
+105. Create the contact display page by groups.
+	Group the names through group name
+	Include sorting algorithm for group name
+	Check all the group names in alphabetical order
+	Check the contacts are in correct group
+
+106. Implementation of delete the contact.
+	Delete the contact from db
+	Check the contact is deleted or not through db and view page
+	Check deletion does not affect any other contacts
+
+107. Implementation of edit the contact.
+	Edit the contact
+	Check the contact is edited successfully or not through view page or contactdb
+	If the group was edited then check it whether the name was in correct group or not through view page by group
+
+108. Testing the application
+	Identifying corner cases and test it
+	Bug solving
+
+109. Deploying the application
