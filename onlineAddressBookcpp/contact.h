@@ -4,7 +4,7 @@
 #include "contactInterface.h"
 using namespace std;
 class contact : public contactInterface {
-public:
+protected:
 	string name;
 	string phoneNo;
 	string address;

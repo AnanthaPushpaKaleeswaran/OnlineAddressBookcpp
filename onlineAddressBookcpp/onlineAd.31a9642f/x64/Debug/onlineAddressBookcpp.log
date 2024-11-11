@@ -1,5 +1,9 @@
-﻿  contact.cpp
-  onlineAddressBookcpp.cpp
-  Generating Code...
-LINK : warning LNK4067: ambiguous entry point; selected 'mainCRTStartup'
+﻿  user.cpp
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(220,16): warning C4305: 'return': truncation from 'int' to 'bool'
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(262,31): warning C4244: 'argument': conversion from '__int64' to '_Ty', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(262,31): warning C4244:         with
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(262,31): warning C4244:         [
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(262,31): warning C4244:             _Ty=int
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(262,31): warning C4244:         ]
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(276,27): warning C4244: '*=': conversion from 'double' to '__int64', possible loss of data
   onlineAddressBookcpp.vcxproj -> C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\x64\Debug\onlineAddressBookcpp.exe
