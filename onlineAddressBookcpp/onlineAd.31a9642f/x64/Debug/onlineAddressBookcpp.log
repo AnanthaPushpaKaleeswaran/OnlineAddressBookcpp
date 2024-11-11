@@ -1,0 +1,5 @@
+﻿  contact.cpp
+  onlineAddressBookcpp.cpp
+  Generating Code...
+LINK : warning LNK4067: ambiguous entry point; selected 'mainCRTStartup'
+  onlineAddressBookcpp.vcxproj -> C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\x64\Debug\onlineAddressBookcpp.exe
