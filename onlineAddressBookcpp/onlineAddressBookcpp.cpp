@@ -22,16 +22,17 @@ public:
 		this->group = group;
 	}
 
+	//get the user details
 	void getUser() {
 		while (1) {
 			cout << "1.Login" << endl << "2.Signup" << endl << "3.Exit" << endl;
 			cout << "Enter your choice : ";
-			//get the type
 			int type;
 			string email;
 			string password;
 			bool ok = false;
 			cin >> type;
+
 			switch (type) {
 
 			case 1:
@@ -46,9 +47,14 @@ public:
 				ok = addUser();
 				break;
 
-			default:
-				cout << "Thank you :)";
+			case 3:
+				cout << "Thank you :)"<<endl;
 				return;
+
+			default:
+				cout << "Invalid option."<<endl;
+				cout << "-------------------------------------------------------------------!" << endl << endl;
+				continue;
 			}
 			cout << "-------------------------------------------------------------------!" << endl << endl;
 
@@ -58,6 +64,7 @@ public:
 		}
 	}
 
+	//get the contact details
 	void getContact() {
 		while (1) {
 			cout << "1.Add Contact" << endl << "2.Search Contact" << endl << "3.Delete Contact" << endl;
@@ -70,12 +77,13 @@ public:
 			string phoneNo;
 			string address;
 			string group;
+
 			switch (choice) {
 
 			case 1:
 				getContactInput(&name, &phoneNo, &address, &group);
 				setContact(name, phoneNo, address, group);
-				addContact();
+				addContact(email);
 				break;
 
 			case 2:
@@ -94,10 +102,15 @@ public:
 				viewContacts();
 				break;
 
-			default:
+			case 6:
 				cout << "Logging out ..."<<endl;
 				cout << "-------------------------------------------------------------------!" << endl << endl;
 				return;
+
+			default:
+				cout << "Invalid option." << endl;
+				cout << "-------------------------------------------------------------------!" << endl << endl;
+				continue;
 			}
 			cout << "-------------------------------------------------------------------!" << endl << endl;
 		}
@@ -120,8 +133,9 @@ public:
 		cout << "Enter the phone number : ";
 		cin >> *phoneNo;
 
+		cin.ignore();
 		cout << "Enter the address : ";
-		cin >> *address;
+		getline(cin, *address);
 
 		cout << "Enter the group : ";
 		cin >> *group;

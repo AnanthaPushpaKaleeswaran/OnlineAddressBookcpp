@@ -258,20 +258,24 @@ bool validEmail(string email) {
 string encryptPassword(string message) {
     setkeys();
     vector<int> form;
+
     for (auto& letter : message) {
         form.push_back(encrypt((int)letter));
     }
     string encryption;
+
     for (auto& itr : form) {
         encryption += to_string(itr);
     }
     return encryption;
 }
 
+//encrypt function
 long long int encrypt(double message)
 {
     int e = publicKey;
     long long int encrpyted_text = 1;
+
     while (e--) {
         encrpyted_text *= message;
         encrpyted_text %= n;
@@ -279,6 +283,7 @@ long long int encrypt(double message)
     return encrpyted_text;
 }
 
+//key setting function
 void setkeys()
 {
     int prime1 = 61;
@@ -286,33 +291,42 @@ void setkeys()
     n = prime1 * prime2;
     int fi = (prime1 - 1) * (prime2 - 1);
     int e = 2;
+
     while (1) {
         if (gcd(e, fi) == 1)
             break;
         e++;
     } // d = (k*Φ(n) + 1) / e for some integer k
+   
     publicKey = e;
     int d = 2;
+    
     while (1) {
-        if ((d * e) % fi == 1)
+        if ((d * e) % fi == 1) {
             break;
+        }
         d++;
     }
     privateKey = d;
 }
 
+//gcd of two numbers
 int gcd(int a, int h)
 {
     int temp;
+
     while (1) {
         temp = a % h;
-        if (temp == 0)
+        if (temp == 0) {
             return h;
+        }
+    
         a = h;
         h = temp;
     }
 }
 
+//check user exist or not
 bool userExist(sqlite3* db, string tableName, string email, string password) {
     string query = "SELECT COUNT(*) FROM '" + tableName + "' WHERE email = '" + email  + "' AND password = '" + password + "'";
     sqlite3_stmt* stmt;

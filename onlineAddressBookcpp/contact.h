@@ -10,10 +10,10 @@ protected:
 	string address;
 	string group;
 
-	void addContact();
-	void search();
-	void deleteContact();
-	void editContact();
-	void viewContacts();
-	void viewByGroup();
+	void addContact(string email) override;
+	void search() override;
+	void deleteContact() override;
+	void editContact() override;
+	void viewContacts() override;
+	void viewByGroup() override;
 };
