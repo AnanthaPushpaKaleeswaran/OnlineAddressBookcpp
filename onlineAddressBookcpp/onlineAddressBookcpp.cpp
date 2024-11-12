@@ -1,6 +1,7 @@
 // OnlineAddressBook.cpp : This file contains the 'main' function. Program execution begins and ends there.
 
 #include <iostream>
+#include<vector>
 #include "user.h"
 #include "contact.h"
 using namespace std;
@@ -15,7 +16,7 @@ public:
 	}
 
 	//set the contact
-	void setContact(string name, string phoneNo, string address, string group) {
+	void setContact(string name, string phoneNo, string address, vector<string> group) {
 		this->name = name;
 		this->phoneNo = phoneNo;
 		this->address = address;
@@ -53,10 +54,10 @@ public:
 
 			default:
 				cout << "Invalid option."<<endl;
-				cout << "-------------------------------------------------------------------!" << endl << endl;
+				cout << "-----------------------------------------------------------------------------------------------!" << endl << endl;
 				continue;
 			}
-			cout << "-------------------------------------------------------------------!" << endl << endl;
+			cout << "-----------------------------------------------------------------------------------------------!" << endl << endl;
 
 			if (ok) {
 				getContact();
@@ -68,15 +69,15 @@ public:
 	void getContact() {
 		while (1) {
 			cout << "1.Add Contact" << endl << "2.Search Contact" << endl << "3.Delete Contact" << endl;
-			cout << "4.Edit Contact" << endl << "5.See the contacts" << endl << "6.Exit" << endl;
-			cout << "Enter your choice : ";
+			cout << "4.Edit Contact" << endl << "5.See the contacts" << endl << "6.See the contacts by group" << endl << "7.Logout";
+			cout << endl << "Enter your choice : ";
 			int choice;
 			cin >> choice;
 			bool ok = false;
 			string name;
 			string phoneNo;
 			string address;
-			string group;
+			vector<string> group;
 
 			switch (choice) {
 
@@ -87,11 +88,11 @@ public:
 				break;
 
 			case 2:
-				search();
+				search(email);
 				break;
 
 			case 3:
-				deleteContact();
+				//deleteContact(email);
 				break;
 
 			case 4:
@@ -99,20 +100,24 @@ public:
 				break;
 
 			case 5:
-				viewContacts();
+				viewContacts(email);
 				break;
 
 			case 6:
+				//viewByGroup(email);
+				break;
+
+			case 7:
 				cout << "Logging out ..."<<endl;
-				cout << "-------------------------------------------------------------------!" << endl << endl;
+				cout << "-----------------------------------------------------------------------------------------------!" << endl << endl;
 				return;
 
 			default:
 				cout << "Invalid option." << endl;
-				cout << "-------------------------------------------------------------------!" << endl << endl;
+				cout << "-----------------------------------------------------------------------------------------------!" << endl << endl;
 				continue;
 			}
-			cout << "-------------------------------------------------------------------!" << endl << endl;
+			cout << "-----------------------------------------------------------------------------------------------!" << endl << endl;
 		}
 	}
 
@@ -126,9 +131,10 @@ public:
 	}
 
 	//getting the input for contact
-	void getContactInput(string* name, string* phoneNo, string* address, string* group) {
+	void getContactInput(string* name, string* phoneNo, string* address, vector<string>* group) {
+		cin.ignore();
 		cout << "Enter the name : ";
-		cin >> *name;
+		getline(cin, *name);
 
 		cout << "Enter the phone number : ";
 		cin >> *phoneNo;
@@ -137,8 +143,111 @@ public:
 		cout << "Enter the address : ";
 		getline(cin, *address);
 
-		cout << "Enter the group : ";
+		while (1) {
+			bool ok = false;
+			setExistingGroups(email);
+			int count = 1;
+
+			cout << endl<<"Select a group"<<endl;
+			for (auto itr : existingGroups) {
+				itr[0] = toupper(itr[0]);
+				cout << count++ << "." << itr << endl;
+			}
+
+			cout << count++ << ".New Group" << endl;
+			cout << count << ".Exit" << endl;
+			int groupChoice;
+			cout << "Enter your choice : ";
+			cin >> groupChoice;
+			string groupName;
+			auto it = existingGroups.begin();
+
+			if (groupChoice>=1 && groupChoice < count - 1) {
+				advance(it, groupChoice-1);
+				groupName = *it;
+				if (individualGroupExist(*group,groupName)) {
+					cout << "The group was already added." << endl;
+				}
+				else {
+					group->push_back(groupName);
+					cout << "Group added was successfully!" << endl;
+				}
+			}
+			else if (groupChoice == count - 1) {
+				getNewGroup(&groupName);
+				bool exist = groupExist(groupName);
+				if (groupExist(groupName)) {
+					cout << "The group already exists." << endl;
+				}
+				else if (individualGroupExist(*group, groupName)) {
+					cout << "The group was already added" << endl;
+				}
+				else {
+					group->push_back(groupName);
+					cout << "Group added successfully!" << endl;
+				}
+			}
+			else if (groupChoice == count) {
+				cout << "Exiting group selection" << endl;
+				return;
+			}
+			else{
+				cout << "Invalid choice."<<endl<<"Please try again later" << endl;
+			}
+		}
+	}
+
+	void getNewGroup(string* group) {
+		cout << "Enter the group name : ";
 		cin >> *group;
+	}
+
+	bool groupExist(string group) {
+		int groupLen = group.length();
+		for (auto& itr : existingGroups) {
+			bool individual = true;
+
+			if (itr.length() != groupLen) {
+				individual = false;
+				continue;
+			}
+
+			for (int index = 0; index < groupLen; index++) {
+				if (tolower(itr[index]) != tolower(group[index])) {
+					individual = false;
+					break;
+				}
+			}
+
+			if (individual) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool individualGroupExist(vector<string> group,string groupName) {
+		int groupLen = groupName.length();
+		for (auto& itr : group) {
+			bool individual = true;
+
+			if (itr.length() != groupLen) {
+				individual = false;
+				continue;
+			}
+
+			for (int index = 0; index < groupLen; index++) {
+				if (tolower(itr[index]) != tolower(groupName[index])) {
+					individual = false;
+					break;
+				}
+			}
+
+			if (individual) {
+				return true;
+			}
+		}
+		return false;
 	}
 };
 

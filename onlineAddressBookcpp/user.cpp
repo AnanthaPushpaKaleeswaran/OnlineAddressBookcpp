@@ -128,7 +128,7 @@ bool dbExist(sqlite3** db) {
 
 //db creation
 void createDatabase(sqlite3** db) {
-    cout << endl << "Database was created successfully." << endl;
+    cout << "Database was created successfully." << endl;
     int exit = sqlite3_open("onlineAddressBook.db", db);
 
     if (exit != SQLITE_OK) {
