@@ -109,12 +109,12 @@ void contact::search(string email){
       
         if (ok && first) {
             first = false;
-            cout << left << setw(15) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
-            cout << "--------------------------------------------------------------------------------------------" << endl;
+            cout << left << setw(30) << "Name" << setw(15) << "Phone Number" << setw(60) << "Address" << setw(10) << "Group" << endl;
+            cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
         }
        
         if (ok) {
-            cout << left << setw(15) << itr.name << setw(15) << itr.phoneNo << setw(50) << itr.address << setw(10);
+            cout << left << setw(30) << itr.name << setw(15) << itr.phoneNo << setw(60) << itr.address << setw(10);
             if (!itr.group.empty()) {
                 cout << itr.group.at(0);
                 for (int index = 1; index < itr.group.size(); index++) {
@@ -142,7 +142,7 @@ void contact::deleteContact(string email) {
     string delName;
     cin.ignore();
     cout << "Enter the name you want to delete : ";
-    cin >> delName;
+    getline(cin, delName);
     bool exist = nameExist(db, "contact", email, delName);
 
     if (!exist) {
@@ -215,14 +215,14 @@ void contact::viewByGroup(string email){
         sqlite3_close(db);
         return;
     }
-    cout << endl << left << setw(15) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
-    cout << "--------------------------------------------------------------------------------------------" << endl;
+    cout << endl << left << setw(30) << "Name" << setw(15) << "Phone Number" << setw(60) << "Address" << setw(10) << "Group" << endl;
+    cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
 
     for (auto itr : existingGroups) {
         for (auto vec : contactDetails) {
             for (auto gro : vec.group) {
                 if (itr == gro) {
-                    cout << left << setw(15) << vec.name << setw(15) << vec.phoneNo << setw(50) << vec.address<<itr<<endl;
+                    cout << left << setw(30) << vec.name << setw(15) << vec.phoneNo << setw(60) << vec.address<<itr<<endl;
                 }
             }
         }
@@ -231,7 +231,7 @@ void contact::viewByGroup(string email){
 
     for (auto vec : contactDetails) {
         if (vec.group.at(0) == "") {
-            cout << left << setw(15) << vec.name << setw(15) << vec.phoneNo << setw(50) << vec.address << endl;
+            cout << left << setw(30) << vec.name << setw(15) << vec.phoneNo << setw(60) << vec.address << endl;
         }
     }
     sqlite3_close(db);
@@ -393,11 +393,11 @@ bool compareByName(ContactDet first, ContactDet second) {
 
 //display function
 void print() {
-    cout <<endl<< left << setw(15) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
-    cout << "--------------------------------------------------------------------------------------------" << endl;
+    cout <<endl<< left << setw(30) << "Name" << setw(15) << "Phone Number" << setw(60) << "Address" << setw(10) << "Group" << endl;
+    cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
 
     for (auto& itr : contactDetails) {
-        cout << left << setw(15) << itr.name << setw(15) << itr.phoneNo << setw(50) << itr.address;
+        cout << left << setw(30) << itr.name << setw(15) << itr.phoneNo << setw(60) << itr.address;
        
         if (!itr.group.empty()) {
             cout << itr.group.at(0);
