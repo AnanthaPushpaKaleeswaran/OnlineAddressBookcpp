@@ -56,8 +56,8 @@ void contact::addContact(string email) {
         cout << "Name already exist" << endl << "Enter the name : ";
         cin >> name;
     }
-
     string groupName;
+    
     if (!group.empty()) {
         groupName += group.at(0);
         for (int index = 1; index < group.size(); index++) {
@@ -65,6 +65,7 @@ void contact::addContact(string email) {
             groupName += group.at(index);
         }
     }
+    
     string query = "INSERT INTO contact VALUES ('" + name + "','" + phoneNo + "','" + address + "','" + groupName + "','" + email + "')";
     char* err;
     int res = sqlite3_exec(db, query.c_str(), NULL, NULL, &err);
@@ -206,19 +207,37 @@ void contact::viewByGroup(string email){
         sqlite3_close(db);
         return;
     }
-    fetchRecords(db, email);
+    setExistingGroups(email);
+    sort(contactDetails.begin(), contactDetails.end(), compareByName);
 
     if (contactDetails.empty()) {
         cout << "No contacts" << endl;
         sqlite3_close(db);
         return;
     }
+    cout << endl << left << setw(15) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
+    cout << "--------------------------------------------------------------------------------------------" << endl;
 
-    sort(contactDetails.begin(), contactDetails.end(), compareByGroup);
-    print();
+    for (auto itr : existingGroups) {
+        for (auto vec : contactDetails) {
+            for (auto gro : vec.group) {
+                if (itr == gro) {
+                    cout << left << setw(15) << vec.name << setw(15) << vec.phoneNo << setw(50) << vec.address<<itr<<endl;
+                }
+            }
+        }
+        cout << endl;
+    }
+
+    for (auto vec : contactDetails) {
+        if (vec.group.at(0) == "") {
+            cout << left << setw(15) << vec.name << setw(15) << vec.phoneNo << setw(50) << vec.address << endl;
+        }
+    }
     sqlite3_close(db);
 }
 
+//set the groups
 void contact::setExistingGroups(string email) {
     sqlite3* db;
 
@@ -287,6 +306,7 @@ bool isConnectedForContact(sqlite3* db) {
     return db != nullptr && sqlite3_errcode(db) == SQLITE_OK;
 }
 
+//phone number validation
 bool validPhone(string phone) {
     bool notDigit = false;
     
@@ -328,6 +348,7 @@ void fetchRecords(sqlite3* db,string email) {
     for (auto& itr : contactDetails) {
         itr.group.clear();
     }
+
     contactDetails.clear();
     string query = "SELECT * FROM contact WHERE email = '" + email + "'";
     sqlite3_stmt* stmt;
@@ -358,6 +379,7 @@ void fetchRecords(sqlite3* db,string email) {
                 groupName += group[index];
             }
         }
+
         groupVector.push_back(groupName);
         contactDetails.push_back({ name,phoneNo,address,groupVector });
     }
@@ -376,8 +398,10 @@ void print() {
 
     for (auto& itr : contactDetails) {
         cout << left << setw(15) << itr.name << setw(15) << itr.phoneNo << setw(50) << itr.address;
+       
         if (!itr.group.empty()) {
             cout << itr.group.at(0);
+        
             for (int index = 1; index < itr.group.size(); index++) {
                 cout << "," << itr.group[index];
             }

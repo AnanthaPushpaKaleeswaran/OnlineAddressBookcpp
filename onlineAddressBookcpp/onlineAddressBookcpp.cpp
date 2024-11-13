@@ -104,7 +104,7 @@ public:
 				break;
 
 			case 6:
-				//viewByGroup(email);
+				viewByGroup(email);
 				break;
 
 			case 7:
@@ -147,8 +147,8 @@ public:
 			bool ok = false;
 			setExistingGroups(email);
 			int count = 1;
-
 			cout << endl<<"Select a group"<<endl;
+			
 			for (auto itr : existingGroups) {
 				itr[0] = toupper(itr[0]);
 				cout << count++ << "." << itr << endl;
@@ -165,6 +165,7 @@ public:
 			if (groupChoice>=1 && groupChoice < count - 1) {
 				advance(it, groupChoice-1);
 				groupName = *it;
+				
 				if (individualGroupExist(*group,groupName)) {
 					cout << "The group was already added." << endl;
 				}
@@ -176,6 +177,7 @@ public:
 			else if (groupChoice == count - 1) {
 				getNewGroup(&groupName);
 				bool exist = groupExist(groupName);
+				
 				if (groupExist(groupName)) {
 					cout << "The group already exists." << endl;
 				}
@@ -197,11 +199,13 @@ public:
 		}
 	}
 
+	//get the new group
 	void getNewGroup(string* group) {
 		cout << "Enter the group name : ";
 		cin >> *group;
 	}
 
+	//check whether the group already exist in exisiting groups or not
 	bool groupExist(string group) {
 		int groupLen = group.length();
 		for (auto& itr : existingGroups) {
@@ -226,6 +230,7 @@ public:
 		return false;
 	}
 
+	//check the group was added to the contact or not
 	bool individualGroupExist(vector<string> group,string groupName) {
 		int groupLen = groupName.length();
 		for (auto& itr : group) {
