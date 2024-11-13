@@ -1,6 +1,4 @@
 ﻿  contact.cpp
-  onlineAddressBookcpp.cpp
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\onlineAddressBookcpp.cpp(210,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\onlineAddressBookcpp.cpp(235,16): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  Generating Code...
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(618,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(643,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   onlineAddressBookcpp.vcxproj -> C:\Users\yogar\source\repos\onlineAddressBookcpp\x64\Debug\onlineAddressBookcpp.exe

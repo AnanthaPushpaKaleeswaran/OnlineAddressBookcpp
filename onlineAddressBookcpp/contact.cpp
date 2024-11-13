@@ -15,7 +15,9 @@ struct ContactDet {
 };
 
 vector<ContactDet> contactDetails;
+set<string> existingGroups;
 
+void setExistingGroups(string email);
 void createContactTable(sqlite3* db);
 bool dbConnectionEstablishedForContact(sqlite3** db);
 bool contactTableExist(sqlite3* db, string tabName);
@@ -28,9 +30,15 @@ void print();
 bool nameExist(sqlite3* db, string tableName, string email, string name);
 bool compareSearch(string name, string subName);
 bool compareByGroup(ContactDet first, ContactDet second);
+void getContactInput(string* name, string* phoneNo, string* address, vector<string>* group, string email, bool check);
+void getNewGroup(string* group);
+bool individualGroupExist(vector<string> group, string groupName);
+bool groupExist(string group);
 
 //add user
 void contact::addContact(string email) {
+    getContactInput(&name, &phoneNo, &address, &group, email, false);
+    setContact(name, phoneNo, address, group);
     sqlite3* db = nullptr;
 
     if (!dbConnectionEstablishedForContact(&db)) {
@@ -101,6 +109,7 @@ void contact::search(string email){
     cin.ignore();
     cout << "Enter the name to serach : ";
     getline(cin, searchName);
+    cout << endl;
     fetchRecords(db, email);
     sort(contactDetails.begin(), contactDetails.end(), compareByName);
 
@@ -109,12 +118,12 @@ void contact::search(string email){
       
         if (ok && first) {
             first = false;
-            cout << left << setw(30) << "Name" << setw(15) << "Phone Number" << setw(60) << "Address" << setw(10) << "Group" << endl;
+            cout << left << setw(25) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
             cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
         }
        
         if (ok) {
-            cout << left << setw(30) << itr.name << setw(15) << itr.phoneNo << setw(60) << itr.address << setw(10);
+            cout << left << setw(25) << itr.name << setw(15) << itr.phoneNo << setw(50) << itr.address << setw(10);
             if (!itr.group.empty()) {
                 cout << itr.group.at(0);
                 for (int index = 1; index < itr.group.size(); index++) {
@@ -136,6 +145,11 @@ void contact::deleteContact(string email) {
     sqlite3* db;
 
     if (!dbConnectionEstablishedForContact(&db)) {
+        return;
+    }
+
+    if (contactDetails.empty()) {
+        sqlite3_close(db);
         return;
     }
 
@@ -166,7 +180,59 @@ void contact::deleteContact(string email) {
     sqlite3_close(db);
 }
 
-void contact::editContact() {}
+void contact::editContact(string email) {
+    viewContacts(email);
+    sqlite3* db;
+    
+    if (!dbConnectionEstablishedForContact(&db)) {
+        return;
+    }
+
+    if (contactDetails.empty()) {
+        sqlite3_close(db);
+        return;
+    }
+
+    string editName;
+    cin.ignore();
+    cout << "Enter the name to edit : ";
+    getline(cin, editName);
+    getContactInput(&name, &phoneNo, &address, &group, email, true);
+    setContact(name, phoneNo, address, group);
+
+    if (!nameExist(db, "contact", email, editName)) {
+        cout << "Please give the correct name" << endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while (!validPhone(phoneNo)) {
+        cout << "Enter the phone number : ";
+        cin >> phoneNo;
+    }
+    string groupName;
+
+    if (!group.empty()) {
+        groupName += group.at(0);
+        for (int index = 1; index < group.size(); index++) {
+            groupName += ",";
+            groupName += group.at(index);
+        }
+    }
+
+    string query = "UPDATE contact SET name = '" + name + "', phoneNo = '" + phoneNo + "', address = '" + address + "', contactGroup = '" + groupName + "' WHERE name = '" + editName + "'";
+    char* err;
+    int res = sqlite3_exec(db, query.c_str(), NULL, NULL, &err);
+
+    if (res != SQLITE_OK) {
+        cerr << "Error in updation : " << err << endl;
+        sqlite3_free(err);
+        sqlite3_close(db);
+        return;
+    }
+    cout << "Contact modified successfully" << endl;
+    sqlite3_close(db);
+}
 
 //see the contacts
 void contact::viewContacts(string email) {
@@ -215,14 +281,14 @@ void contact::viewByGroup(string email){
         sqlite3_close(db);
         return;
     }
-    cout << endl << left << setw(30) << "Name" << setw(15) << "Phone Number" << setw(60) << "Address" << setw(10) << "Group" << endl;
+    cout << endl << left << setw(25) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
     cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
 
     for (auto itr : existingGroups) {
         for (auto vec : contactDetails) {
             for (auto gro : vec.group) {
                 if (itr == gro) {
-                    cout << left << setw(30) << vec.name << setw(15) << vec.phoneNo << setw(60) << vec.address<<itr<<endl;
+                    cout << left << setw(25) << vec.name << setw(15) << vec.phoneNo << setw(50) << vec.address<<itr<<endl;
                 }
             }
         }
@@ -231,14 +297,22 @@ void contact::viewByGroup(string email){
 
     for (auto vec : contactDetails) {
         if (vec.group.at(0) == "") {
-            cout << left << setw(30) << vec.name << setw(15) << vec.phoneNo << setw(60) << vec.address << endl;
+            cout << left << setw(25) << vec.name << setw(15) << vec.phoneNo << setw(50) << vec.address << endl;
         }
     }
     sqlite3_close(db);
 }
 
+//set the contact
+void contact::setContact(string name, string phoneNo, string address, vector<string> group) {
+    this->name = name;
+    this->phoneNo = phoneNo;
+    this->address = address;
+    this->group = group;
+}
+
 //set the groups
-void contact::setExistingGroups(string email) {
+void setExistingGroups(string email) {
     sqlite3* db;
 
     if (!dbConnectionEstablishedForContact(&db)) {
@@ -393,11 +467,11 @@ bool compareByName(ContactDet first, ContactDet second) {
 
 //display function
 void print() {
-    cout <<endl<< left << setw(30) << "Name" << setw(15) << "Phone Number" << setw(60) << "Address" << setw(10) << "Group" << endl;
+    cout <<endl<< left << setw(25) << "Name" << setw(15) << "Phone Number" << setw(50) << "Address" << setw(10) << "Group" << endl;
     cout << "------------------------------------------------------------------------------------------------------------------------" << endl;
 
     for (auto& itr : contactDetails) {
-        cout << left << setw(30) << itr.name << setw(15) << itr.phoneNo << setw(60) << itr.address;
+        cout << left << setw(25) << itr.name << setw(15) << itr.phoneNo << setw(50) << itr.address;
        
         if (!itr.group.empty()) {
             cout << itr.group.at(0);
@@ -461,4 +535,130 @@ bool compareByGroup(ContactDet first, ContactDet second) {
         return first.name < second.name;
     }
     return first.group < second.group;
+}
+
+void getContactInput(string* name, string* phoneNo, string* address, vector<string>* group,string email,bool check){
+    if (!check) {
+        cin.ignore();
+    }
+    cout << "Enter the name : ";
+    getline(cin, *name);
+
+    cout << "Enter the phone number : ";
+    cin >> *phoneNo;
+
+    cin.ignore();
+    cout << "Enter the address : ";
+    getline(cin, *address);
+
+    while (1) {
+        bool ok = false;
+        setExistingGroups(email);
+        int count = 1;
+        cout << endl << "Select a group" << endl;
+
+        for (auto itr : existingGroups) {
+            itr[0] = toupper(itr[0]);
+            cout << count++ << "." << itr << endl;
+        }
+
+        cout << count++ << ".New Group" << endl;
+        cout << count << ".Exit" << endl;
+        int groupChoice;
+        cout << "Enter your choice : ";
+        cin >> groupChoice;
+        string groupName;
+        auto it = existingGroups.begin();
+
+        if (groupChoice >= 1 && groupChoice < count - 1) {
+            advance(it, groupChoice - 1);
+            groupName = *it;
+
+            if (individualGroupExist(*group, groupName)) {
+                cout << "The group was already added." << endl;
+            }
+            else {
+                group->push_back(groupName);
+                cout << "Group added was successfully!" << endl;
+            }
+        }
+        else if (groupChoice == count - 1) {
+            getNewGroup(&groupName);
+            bool exist = groupExist(groupName);
+
+            if (groupExist(groupName)) {
+                cout << "The group already exists." << endl;
+            }
+            else if (individualGroupExist(*group, groupName)) {
+                cout << "The group was already added" << endl;
+            }
+            else {
+                group->push_back(groupName);
+                cout << "Group added successfully!" << endl;
+            }
+        }
+        else if (groupChoice == count) {
+            cout << "Exiting group selection" << endl;
+            return;
+        }
+        else {
+            cout << "Invalid choice." << endl << "Please try again later" << endl;
+        }
+    }
+}
+
+//get the new group
+void getNewGroup(string* group) {
+    cout << "Enter the group name : ";
+    cin >> *group;
+}
+
+//check the group was added to the contact or not
+bool individualGroupExist(vector<string> group, string groupName) {
+    int groupLen = groupName.length();
+    for (auto& itr : group) {
+        bool individual = true;
+
+        if (itr.length() != groupLen) {
+            individual = false;
+            continue;
+        }
+
+        for (int index = 0; index < groupLen; index++) {
+            if (tolower(itr[index]) != tolower(groupName[index])) {
+                individual = false;
+                break;
+            }
+        }
+
+        if (individual) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//check whether the group already exist in exisiting groups or not
+bool groupExist(string group) {
+    int groupLen = group.length();
+    for (auto& itr : existingGroups) {
+        bool individual = true;
+
+        if (itr.length() != groupLen) {
+            individual = false;
+            continue;
+        }
+
+        for (int index = 0; index < groupLen; index++) {
+            if (tolower(itr[index]) != tolower(group[index])) {
+                individual = false;
+                break;
+            }
+        }
+
+        if (individual) {
+            return true;
+        }
+    }
+    return false;
 }

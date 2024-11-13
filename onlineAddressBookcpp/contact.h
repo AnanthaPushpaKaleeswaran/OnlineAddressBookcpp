@@ -11,13 +11,12 @@ protected:
 	string phoneNo;
 	string address;
 	vector<string> group;
-	set<string> existingGroups;
 
 	void addContact(string email) override;
 	void search(string email) override;
 	void deleteContact(string email) override;
-	void editContact() override;
+	void editContact(string email) override;
 	void viewContacts(string email) override;
 	void viewByGroup(string email) override;
-	void setExistingGroups(string email) override;
+	void setContact(string name, string phoneNo, string address, vector<string> group) override;
 };

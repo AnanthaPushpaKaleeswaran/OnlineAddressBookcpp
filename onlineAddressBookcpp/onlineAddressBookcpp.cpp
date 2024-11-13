@@ -15,14 +15,6 @@ public:
 		this->password = password;
 	}
 
-	//set the contact
-	void setContact(string name, string phoneNo, string address, vector<string> group) {
-		this->name = name;
-		this->phoneNo = phoneNo;
-		this->address = address;
-		this->group = group;
-	}
-
 	//get the user details
 	void getUser() {
 		while (1) {
@@ -82,8 +74,6 @@ public:
 			switch (choice) {
 
 			case 1:
-				getContactInput(&name, &phoneNo, &address, &group);
-				setContact(name, phoneNo, address, group);
 				addContact(email);
 				break;
 
@@ -96,7 +86,7 @@ public:
 				break;
 
 			case 4:
-				editContact();
+				editContact(email);
 				break;
 
 			case 5:
@@ -128,131 +118,6 @@ public:
 
 		cout << "Enter your password : ";
 		cin >> *password;
-	}
-
-	//getting the input for contact
-	void getContactInput(string* name, string* phoneNo, string* address, vector<string>* group) {
-		cin.ignore();
-		cout << "Enter the name : ";
-		getline(cin, *name);
-
-		cout << "Enter the phone number : ";
-		cin >> *phoneNo;
-
-		cin.ignore();
-		cout << "Enter the address : ";
-		getline(cin, *address);
-
-		while (1) {
-			bool ok = false;
-			setExistingGroups(email);
-			int count = 1;
-			cout << endl<<"Select a group"<<endl;
-			
-			for (auto itr : existingGroups) {
-				itr[0] = toupper(itr[0]);
-				cout << count++ << "." << itr << endl;
-			}
-
-			cout << count++ << ".New Group" << endl;
-			cout << count << ".Exit" << endl;
-			int groupChoice;
-			cout << "Enter your choice : ";
-			cin >> groupChoice;
-			string groupName;
-			auto it = existingGroups.begin();
-
-			if (groupChoice>=1 && groupChoice < count - 1) {
-				advance(it, groupChoice-1);
-				groupName = *it;
-				
-				if (individualGroupExist(*group,groupName)) {
-					cout << "The group was already added." << endl;
-				}
-				else {
-					group->push_back(groupName);
-					cout << "Group added was successfully!" << endl;
-				}
-			}
-			else if (groupChoice == count - 1) {
-				getNewGroup(&groupName);
-				bool exist = groupExist(groupName);
-				
-				if (groupExist(groupName)) {
-					cout << "The group already exists." << endl;
-				}
-				else if (individualGroupExist(*group, groupName)) {
-					cout << "The group was already added" << endl;
-				}
-				else {
-					group->push_back(groupName);
-					cout << "Group added successfully!" << endl;
-				}
-			}
-			else if (groupChoice == count) {
-				cout << "Exiting group selection" << endl;
-				return;
-			}
-			else{
-				cout << "Invalid choice."<<endl<<"Please try again later" << endl;
-			}
-		}
-	}
-
-	//get the new group
-	void getNewGroup(string* group) {
-		cout << "Enter the group name : ";
-		cin >> *group;
-	}
-
-	//check whether the group already exist in exisiting groups or not
-	bool groupExist(string group) {
-		int groupLen = group.length();
-		for (auto& itr : existingGroups) {
-			bool individual = true;
-
-			if (itr.length() != groupLen) {
-				individual = false;
-				continue;
-			}
-
-			for (int index = 0; index < groupLen; index++) {
-				if (tolower(itr[index]) != tolower(group[index])) {
-					individual = false;
-					break;
-				}
-			}
-
-			if (individual) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	//check the group was added to the contact or not
-	bool individualGroupExist(vector<string> group,string groupName) {
-		int groupLen = groupName.length();
-		for (auto& itr : group) {
-			bool individual = true;
-
-			if (itr.length() != groupLen) {
-				individual = false;
-				continue;
-			}
-
-			for (int index = 0; index < groupLen; index++) {
-				if (tolower(itr[index]) != tolower(groupName[index])) {
-					individual = false;
-					break;
-				}
-			}
-
-			if (individual) {
-				return true;
-			}
-		}
-		return false;
 	}
 };
 
