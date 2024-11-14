@@ -2,6 +2,7 @@
 #include<string>
 #include<algorithm>
 #include<vector>
+#include<regex>
 #include<iomanip>
 #include "sqlite3.h"
 #include "contact.h"
@@ -33,6 +34,7 @@ void getContactInput(string* name, string* phoneNo, string* address, vector<stri
 void getNewGroup(string* group);
 bool individualGroupExist(vector<string> group, string groupName);
 bool groupExist(string group);
+bool validName(string name);
 
 //add user
 void contact::addContact(string email) {
@@ -64,11 +66,27 @@ void contact::addContact(string email) {
         return;
     }
 
+    bool nameEx = false;
     // Check for duplicate contact names and re-enter if necessary
     while (nameExist(db, "contact", email, name)) {
         cout << "Name already exists" << endl << "Enter the name : ";
-        cin >> name;
+        if (!nameEx) {
+            nameEx = true;
+            cin.ignore();
+        }
+        getline(cin, name);
     }
+
+    bool valName = false;
+    while (!validName(name)) {
+        cout<< "Enter the name : ";
+        if (!valName) {
+            valName = true;
+            cin.ignore();
+        }
+        getline(cin, name);
+    }
+
 
     string groupName;
     if (!group.empty()) {
@@ -497,25 +515,14 @@ bool isConnectedForContact(sqlite3* db) {
 }
 
 //phone number validation
-// Validate if the phone number is a 10-digit number
 bool validPhone(string phone) {
-    if (phone.length() != 10) {
-        cout << "The phone number must contain 10 numbers" << endl;
-        return false; // Invalid if phone number is not 10 digits long
-    }
-    bool notDigit = false;
-
-    for (int index = 0; index < phone.length(); index++) {
-        if (!isdigit(phone[index])) {
-            notDigit = true; // Set flag if a non-digit character is found
-        }
+    regex expression("[0-9]{10}$");
+    if (regex_match(phone, expression)) {
+        return true;
     }
 
-    if (notDigit) {
-        cout << "The phone number must contains numbers only" << endl;
-        return false;
-    }
-    return true;
+    cout << "The phone number must contain 10 numbers only" << endl;
+    return false;
 }
 
 // Check if the contact already exists in the database based on phone number and email
@@ -674,10 +681,10 @@ void getContactInput(string* name, string* phoneNo, string* address, vector<stri
     getline(cin, *address);
 
     group->clear();
+    setExistingGroups(email);
 
     while (1) {
         bool ok = false;
-        setExistingGroups(email);
         int count = 1;
         cout << endl << "Select a group" << endl;
 
@@ -719,6 +726,7 @@ void getContactInput(string* name, string* phoneNo, string* address, vector<stri
                 cout << "The group was already added" << endl;
             }
             else {
+                existingGroups.insert(groupName);
                 group->push_back(groupName);
                 cout << "Group added successfully!" << endl;
             }
@@ -795,4 +803,20 @@ bool groupExist(string group) {
         }
     }
     return false; // Return false if no match is found
+}
+
+bool validName(string name) {
+    if (!name.length()) {
+        cout << "Please enter the name correctly"<<endl;
+        return false;
+    }
+   
+    for (char ch : name) {
+        if (isalnum(ch)) {
+            return true;
+        }
+    }
+    
+    cout << "Please enter the name correctly" << endl;
+    return false;
 }

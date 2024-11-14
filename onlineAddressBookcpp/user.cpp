@@ -3,6 +3,7 @@
 #include<random>
 #include<ctime>
 #include<vector>
+#include<regex>
 #include "sqlite3.h"
 #include "user.h"
 using namespace std;
@@ -193,34 +194,16 @@ bool isConnected(sqlite3* db) {
 // Validate the format of the password
 bool validPass(string password) {
     // Check password length constraints
-    if (password.length() < 8) {
-        cout << "Please enter the password above 8 characters" << endl;
-        return false;
+    regex expression("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&-+=()]).{8,50}");
+    
+    if (regex_match(password, expression)) {
+        return true;
     }
 
-    if (password.length() >= 50) {
-        cout << "Please enter the password below 50 characters" << endl;
-        return false;
-    }
-
-    bool num = false, lower = false, upper = false, symbol = false;
-
-    // Check for presence of required character types
-    for (int i = 0; i < password.length(); i++) {
-        if (isdigit(password[i])) num = true;
-        else if (islower(password[i])) lower = true;
-        else if (isupper(password[i])) upper = true;
-        else if (!isalnum(password[i])) symbol = true;
-    }
-
-    if (!num || !lower || !upper || !symbol) {
-        cout << "The password must contain a number, a lowercase alphabet, an uppercase alphabet, and a symbol";
-        cout << endl;
-        return false;
-    }
-    return true;
+    cout << "The password length must between 8 and 50 characters." << endl;
+    cout<<"The password must contain a lower alphabet,a upper alphabet,a number and a symbol" << endl;
+    return false;
 }
-
 
 //checking for email duplication
 bool emailExist(sqlite3* db, string tabName, string email) {
@@ -247,64 +230,14 @@ bool emailExist(sqlite3* db, string tabName, string email) {
 
 // Email format validation function
 bool validEmail(string email) {
-    bool at = false;
-    bool dot = false;
-    bool alpha = false;
-
-    for (int i = 0; i < email.length(); i++) {
-        if (email[i] == '@') {
-            at = true;
-        }
-        else if (email[i] == '.') {
-            dot = true;
-        }
-        else if (isalpha(email[i])) {
-            alpha = true;
-        }
+    regex regEx("[a-zA-Z0-9._%+-]+@[a-z.-]+\\.[a-z]{2,}$");
+   
+    if (regex_match(email, regEx)) {
+        return true;
     }
 
-    // Basic validation for @, ., and alphabet characters
-    if (!at || !dot || !alpha) {
-        cout << "Please enter a valid email" << endl;
-        return false;
-    }
-
-    int atPos = email.find("@");
-    int atPosPlus = atPos + 2;
-
-    if (email.length() <= atPosPlus) {
-        cout << "Please enter a valid email" << endl;
-        return false;
-    }
-
-    int dotPos = 0;
-
-    // Ensuring characters after "@" are valid
-    for (int index = atPos + 2; index < email.length(); index++) {
-        if (email[index] == '.') {
-            dotPos = index;
-            break;
-        }
-        if (!isalpha(email[index])) {
-            cout << "Please enter a valid email" << endl;
-            return false;
-        }
-    }
-
-    // Validate domain structure after the last dot
-    if (!dotPos || dotPos == email.length() - 1) {
-        cout << "Please enter a valid email" << endl;
-        return false;
-    }
-
-    for (int index = dotPos + 1; index < email.length(); index++) {
-        if (!isalpha(email[index]) && email[index] != '.') {
-            cout << "Please enter a valid email" << endl;
-            return false;
-        }
-    }
-
-    return true;
+    cout << "Please enter a valid email" << endl;
+    return false;
 }
 
 

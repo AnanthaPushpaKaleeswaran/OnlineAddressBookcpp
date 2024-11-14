@@ -1,6 +1,14 @@
-﻿  contact.cpp
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(340,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(746,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(773,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-LINK : warning LNK4067: ambiguous entry point; selected 'mainCRTStartup'
+﻿  user.cpp
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(217,16): warning C4305: 'return': truncation from 'int' to 'bool'
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(250,31): warning C4244: 'argument': conversion from '__int64' to '_Ty', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(250,31): warning C4244:         with
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(250,31): warning C4244:         [
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(250,31): warning C4244:             _Ty=int
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(250,31): warning C4244:         ]
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(268,27): warning C4244: '*=': conversion from 'double' to '__int64', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(282,34): warning C4244: 'argument': conversion from '__int64' to '_Elem', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(282,34): warning C4244:         with
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(282,34): warning C4244:         [
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(282,34): warning C4244:             _Elem=char
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\user.cpp(282,34): warning C4244:         ]
   onlineAddressBookcpp.vcxproj -> C:\Users\yogar\source\repos\onlineAddressBookcpp\x64\Debug\onlineAddressBookcpp.exe
