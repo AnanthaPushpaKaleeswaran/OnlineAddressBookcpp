@@ -1,5 +1,7 @@
 ﻿#include<iostream>
 #include<string>
+#include<random>
+#include<ctime>
 #include<vector>
 #include "sqlite3.h"
 #include "user.h"
@@ -8,6 +10,11 @@ using namespace std;
 int publicKey;
 int privateKey;
 int n;
+struct UserDet {
+    string email;
+    string pass;
+};
+vector<UserDet> userDetails;
 
 void createTable(sqlite3* db);
 bool dbExist(sqlite3** db);
@@ -20,18 +27,23 @@ bool emailExist(sqlite3* db, string tabName, string email);
 bool validEmail(string email);
 string encryptPassword(string message);
 long long int encrypt(double message);
+string decryptPassword(string password);
+long long int decrypt(int msg);
 void setkeys();
 int gcd(int a, int h);
-bool userExist(sqlite3* db, string tableName, string email, string password);
+char getRandomAlphabet();
+void fetchUsers(sqlite3* db);
 
 //add user function
-bool user::addUser(){
+bool user::addUser() {
     sqlite3* db = nullptr;
 
+    // Ensure email and password are valid
     while (!validEmail(email)) {
         bool ok = validPass(password);
         cout << "Enter your email : ";
         cin >> email;
+
         if (!ok) {
             cout << "Enter your password : ";
             cin >> password;
@@ -43,6 +55,7 @@ bool user::addUser(){
         cin >> password;
     }
 
+    // Check if the database exists and create if necessary
     if (!dbExist(&db)) {
         createDatabase(&db);
     }
@@ -51,10 +64,12 @@ bool user::addUser(){
         return false;
     }
 
+    // Check if the user table exists and create if necessary
     if (!tableExist(db, "user")) {
         createTable(db);
     }
 
+    // Check if the email already exists in the database
     if (emailExist(db, "user", email)) {
         cout << "The user already exists." << endl << "Login to continue" << endl;
         sqlite3_close(db);
@@ -62,10 +77,11 @@ bool user::addUser(){
     }
 
     password = encryptPassword(password);
-    string query = "INSERT INTO user VALUES ('" + email + "','" + password + "')";
+    const string query = "INSERT INTO user VALUES ('" + email + "','" + password + "')";
     char* err;
     int res = sqlite3_exec(db, query.c_str(), NULL, NULL, &err);
 
+    // Handle any errors during record insertion
     if (res != SQLITE_OK) {
         cout << "Error in inserting record : " << err << endl;
         sqlite3_free(err);
@@ -74,35 +90,40 @@ bool user::addUser(){
     }
 
     sqlite3_close(db);
-    cout << "User addedd successfully" << endl;
+    cout << "User added successfully" << endl;
     return true;
 }
+
 
 //validate user
 bool user::validateUser() {
     sqlite3* db = nullptr;
 
-    if (!dbExist(&db) || !dbConnectionEstablished(&db) || !tableExist(db,"user")) {
+    // Check if database exists, is connected, and if the 'user' table exists
+    if (!dbExist(&db) || !dbConnectionEstablished(&db) || !tableExist(db, "user")) {
         cout << "Signup to continue" << endl;
         return false;
     }
-    password = encryptPassword(password);
+    fetchUsers(db);
+    
+    for (auto itr : userDetails) {
+        if (itr.email == email && decryptPassword(itr.pass) == password) {
+            cout << "Logging in..." << endl;
+            return true;
+        }
+    }
 
-    if (userExist(db, "user", email, password)) {
-        cout << "Email and password match successfully"<<endl;
-    }
-    else {
-        cout << "No user exist." << endl<<"Check your email and password or Signup to continue" << endl;
-        return false;
-    }
-    return true;
+    cout << "No user exist." << endl << "Check your email and password or sign up to continue" << endl;
+    return false;
 }
+
 
 //create table function
 void createTable(sqlite3* db) {
+    // SQL command to create the 'user' table if it does not already exist
     char* err;
-    const char* sql = "CREATE TABLE IF NOT EXISTS user(email VARCHAR(50) PRIMARY KEY, password VARCHAR(50));";
-    int res = sqlite3_exec(db, sql, NULL, NULL, &err);
+    const string sql = "CREATE TABLE IF NOT EXISTS user(email VARCHAR(50) PRIMARY KEY, password VARCHAR(50));";
+    int res = sqlite3_exec(db, sql.c_str(), NULL, NULL, &err);
 
     if (res != SQLITE_OK) {
         cout << "There is an error in creating table." << endl;
@@ -110,13 +131,13 @@ void createTable(sqlite3* db) {
     }
 }
 
-//check db exists or not
+// Check if the database file exists
 bool dbExist(sqlite3** db) {
     try {
         struct stat buffer;
 
-        if (stat("onlineAddressBook.db", &buffer) != 0){
-            throw "There is no database here";
+        if (stat("onlineAddressBook.db", &buffer) != 0) {
+            throw "There is no database here.";
         }
     }
     catch (const char* err) {
@@ -126,18 +147,18 @@ bool dbExist(sqlite3** db) {
     return true;
 }
 
-//db creation
+// Create the database file if it does not exist
 void createDatabase(sqlite3** db) {
     cout << "Database was created successfully." << endl;
     int exit = sqlite3_open("onlineAddressBook.db", db);
 
     if (exit != SQLITE_OK) {
-        cout << "Error in opening db\nPlease try again later"<<endl;
+        cout << "Error in opening db\nPlease try again later" << endl;
     }
     sqlite3_close(*db);
 }
 
-//check the connection
+// Establish a connection to the database file and check for success
 bool dbConnectionEstablished(sqlite3** db) {
     int exit = sqlite3_open("onlineAddressBook.db", db);
 
@@ -149,10 +170,10 @@ bool dbConnectionEstablished(sqlite3** db) {
     return true;
 }
 
-//table exist function
+// Check if the specified table exists in the database
 bool tableExist(sqlite3* db, string tabName) {
     sqlite3_stmt* stmt;
-    string query = "SELECT * FROM sqlite_master WHERE type='table' AND name='" + tabName + "'";
+    const string query = "SELECT * FROM sqlite_master WHERE type='table' AND name='" + tabName + "'";
 
     if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         cerr << "OOPS error occurred " << sqlite3_errmsg(db) << endl;
@@ -164,13 +185,14 @@ bool tableExist(sqlite3* db, string tabName) {
     return exists;
 }
 
-//check if the db is connected or not
+// Verify if the database is successfully connected
 bool isConnected(sqlite3* db) {
     return db != nullptr && sqlite3_errcode(db) == SQLITE_OK;
 }
 
-//password validation
+// Validate the format of the password
 bool validPass(string password) {
+    // Check password length constraints
     if (password.length() < 8) {
         cout << "Please enter the password above 8 characters" << endl;
         return false;
@@ -181,37 +203,29 @@ bool validPass(string password) {
         return false;
     }
 
-    bool num = false;
-    bool lower = false;
-    bool upper = false;
-    bool symbol = false;
+    bool num = false, lower = false, upper = false, symbol = false;
 
+    // Check for presence of required character types
     for (int i = 0; i < password.length(); i++) {
-        if (isdigit(password[i])) {
-            num = true;
-        }
-        else if (islower(password[i])) {
-            lower = true;
-        }
-        else if (isupper(password[i])) {
-            upper = true;
-        }
-        else if (!isalnum(password[i])) {
-            symbol = true;
-        }
+        if (isdigit(password[i])) num = true;
+        else if (islower(password[i])) lower = true;
+        else if (isupper(password[i])) upper = true;
+        else if (!isalnum(password[i])) symbol = true;
     }
 
     if (!num || !lower || !upper || !symbol) {
-        cout << "The password must contain a number, a lowercase alphabet, a uppercase alphabet and a symbol";
+        cout << "The password must contain a number, a lowercase alphabet, an uppercase alphabet, and a symbol";
         cout << endl;
         return false;
     }
     return true;
 }
 
+
 //checking for email duplication
 bool emailExist(sqlite3* db, string tabName, string email) {
-    string query = "SELECT COUNT(*) FROM '" + tabName + "'WHERE email='" + email + "'";
+    // SQL query to count entries with the specified email
+    const string query = "SELECT COUNT(*) FROM '" + tabName + "'WHERE email='" + email + "'";
     sqlite3_stmt* stmt;
     int res = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
 
@@ -219,8 +233,10 @@ bool emailExist(sqlite3* db, string tabName, string email) {
         cout << "Error checking for existing record: " << sqlite3_errmsg(db) << endl;
         return -1;
     }
+
     int count = 0;
 
+    // Retrieve the count result from the query
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         count = sqlite3_column_int(stmt, 0);
     }
@@ -229,7 +245,7 @@ bool emailExist(sqlite3* db, string tabName, string email) {
     return count > 0;
 }
 
-//email validation
+// Email format validation function
 bool validEmail(string email) {
     bool at = false;
     bool dot = false;
@@ -247,12 +263,50 @@ bool validEmail(string email) {
         }
     }
 
+    // Basic validation for @, ., and alphabet characters
     if (!at || !dot || !alpha) {
-        cout << "Please enter the valid email" << endl;
+        cout << "Please enter a valid email" << endl;
         return false;
     }
+
+    int atPos = email.find("@");
+    int atPosPlus = atPos + 2;
+
+    if (email.length() <= atPosPlus) {
+        cout << "Please enter a valid email" << endl;
+        return false;
+    }
+
+    int dotPos = 0;
+
+    // Ensuring characters after "@" are valid
+    for (int index = atPos + 2; index < email.length(); index++) {
+        if (email[index] == '.') {
+            dotPos = index;
+            break;
+        }
+        if (!isalpha(email[index])) {
+            cout << "Please enter a valid email" << endl;
+            return false;
+        }
+    }
+
+    // Validate domain structure after the last dot
+    if (!dotPos || dotPos == email.length() - 1) {
+        cout << "Please enter a valid email" << endl;
+        return false;
+    }
+
+    for (int index = dotPos + 1; index < email.length(); index++) {
+        if (!isalpha(email[index]) && email[index] != '.') {
+            cout << "Please enter a valid email" << endl;
+            return false;
+        }
+    }
+
     return true;
 }
+
 
 //password encryption
 string encryptPassword(string message) {
@@ -266,6 +320,7 @@ string encryptPassword(string message) {
 
     for (auto& itr : form) {
         encryption += to_string(itr);
+        encryption += getRandomAlphabet();
     }
     return encryption;
 }
@@ -281,6 +336,31 @@ long long int encrypt(double message)
         encrpyted_text %= n;
     }
     return encrpyted_text;
+}
+
+string decryptPassword(string password) {
+    setkeys();
+    string decPass,decryption;
+    for (char ch : password) {
+        if (!isalpha(ch)) {
+            decPass += ch;
+        }
+        else {
+            decryption += decrypt(stoi(decPass));
+            decPass.clear();
+        }
+    }
+    return decryption;
+}
+
+long long int decrypt(int msg) {
+    int d = privateKey;
+    long long int decrypted = 1;
+    while (d--) {
+        decrypted *= msg;
+        decrypted %= n;
+    }
+    return decrypted;
 }
 
 //key setting function
@@ -326,22 +406,31 @@ int gcd(int a, int h)
     }
 }
 
-//check user exist or not
-bool userExist(sqlite3* db, string tableName, string email, string password) {
-    string query = "SELECT COUNT(*) FROM '" + tableName + "' WHERE email = '" + email  + "' AND password = '" + password + "'";
+char getRandomAlphabet() {
+    random_device rd;
+    mt19937 gen(rd());  // Mersenne Twister pseudo-random generator
+    uniform_int_distribution<int> dis(0, 25);  // Uniform distribution for 26 letters
+    int randomIndex = dis(gen);
+    char randomChar = 'A' + randomIndex;  // 'A' is 65 in ASCII, 'Z' is 90
+    return randomChar;
+}
+
+//fetch the user details
+void fetchUsers(sqlite3* db) {
+    userDetails.clear();
+    const string query = "SELECT * FROM user";
     sqlite3_stmt* stmt;
     int res = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
 
     if (res != SQLITE_OK) {
-        cout << "Error checking for existing record: " << sqlite3_errmsg(db) << endl;
-        return false;
-    }
-    int count = 0;
-
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        count = sqlite3_column_int(stmt, 0);
+        cout << "Failed to fetch records" << endl;
+        return;
     }
 
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        string email = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        string pass = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        userDetails.push_back({ email,pass });
+    }
     sqlite3_finalize(stmt);
-    return count > 0;
 }

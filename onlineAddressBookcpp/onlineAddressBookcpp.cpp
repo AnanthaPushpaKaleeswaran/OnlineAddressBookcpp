@@ -4,6 +4,7 @@
 #include<vector>
 #include "user.h"
 #include "contact.h"
+#include "sqlite3.h"
 using namespace std;
 
 class onlineAddressBook : public user, public contact {
@@ -17,89 +18,36 @@ public:
 
 	//get the user details
 	void getUser() {
-		while (1) {
+		while (1) { // Main loop for login, signup, or exit
+
 			cout << "1.Login" << endl << "2.Signup" << endl << "3.Exit" << endl;
+			struct stat buffer;
+
+			if (stat("onlineAddressBook.db", &buffer) != 0) {
+				cout << "There is no database here." << endl << "Signup to continue" << endl;
+			}
+
 			cout << "Enter your choice : ";
 			int type;
-			string email;
-			string password;
+			string email, password;
 			bool ok = false;
 			cin >> type;
 
 			switch (type) {
-
-			case 1:
+			case 1: // Login option
 				getUserInput(&email, &password);
 				setUser(email, password);
 				ok = validateUser();
 				break;
 
-			case 2:
+			case 2: // Signup option
 				getUserInput(&email, &password);
 				setUser(email, password);
 				ok = addUser();
 				break;
 
-			case 3:
-				cout << "Thank you :)"<<endl;
-				return;
-
-			default:
-				cout << "Invalid option."<<endl;
-				cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
-				continue;
-			}
-			cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
-
-			if (ok) {
-				getContact();
-			}
-		}
-	}
-
-	//get the contact details
-	void getContact() {
-		while (1) {
-			cout << "1.Add Contact" << endl << "2.Search Contact" << endl << "3.Delete Contact" << endl;
-			cout << "4.Edit Contact" << endl << "5.See the contacts" << endl << "6.See the contacts by group" << endl << "7.Logout";
-			cout << endl << "Enter your choice : ";
-			int choice;
-			cin >> choice;
-			bool ok = false;
-			string name;
-			string phoneNo;
-			string address;
-			vector<string> group;
-
-			switch (choice) {
-
-			case 1:
-				addContact(email);
-				break;
-
-			case 2:
-				search(email);
-				break;
-
-			case 3:
-				deleteContact(email);
-				break;
-
-			case 4:
-				editContact(email);
-				break;
-
-			case 5:
-				viewContacts(email);
-				break;
-
-			case 6:
-				viewByGroup(email);
-				break;
-
-			case 7:
-				cout << "Logging out ..."<<endl;
-				cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
+			case 3: // Exit the program
+				cout << "Thank you :)" << endl;
 				return;
 
 			default:
@@ -108,11 +56,80 @@ public:
 				continue;
 			}
 			cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
+
+			if (ok) {
+				getContact(); // Proceed to contact management if login/signup is successful
+			}
 		}
 	}
 
+
+	//get the contact details
+	void getContact() {
+		while (1) {
+			// Display menu options
+			cout << "1.Add Contact" << endl << "2.Search Contact" << endl << "3.Delete Contact" << endl;
+			cout << "4.Edit Contact" << endl << "5.See the contacts" << endl << "6.See the contacts by group" << endl;
+			cout << "7.See the contacts those who are not in group" << endl << "8.Log out" << endl;
+			cout << endl << "Enter your choice : ";
+
+			int choice;
+			cin >> choice;
+
+			// Initialize variables for contact details
+			bool ok = false;
+			string name;
+			string phoneNo;
+			string address;
+			vector<string> group;
+
+			// Handle user choice
+			switch (choice) {
+			case 1: // Add a new contact
+				addContact(email);
+				break;
+
+			case 2: // Search for an existing contact
+				search(email);
+				break;
+
+			case 3: // Delete a contact
+				deleteContact(email);
+				break;
+
+			case 4: // Edit an existing contact
+				editContact(email);
+				break;
+
+			case 5: // View all contacts
+				viewContacts(email);
+				break;
+
+			case 6: // View contacts by group
+				viewByGroup(email);
+				break;
+
+			case 7: // View contacts without a group
+				viewGroupNone(email);
+				break;
+
+			case 8: // Log out and return to the main menu
+				cout << "Logging out ..." << endl;
+				cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
+				return;
+
+			default: // Handle invalid choices
+				cout << "Invalid option." << endl;
+				cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
+				continue;
+			}
+			cout << "-----------------------------------------------------------------------------------------------------------------------!" << endl << endl;
+		}
+	}
+
+
 	//getting the input for user
-	void getUserInput(string* email, string* password) {
+	virtual void getUserInput(string* email, string* password) final{
 		cout << "Enter your email : ";
 		cin >> *email;
 

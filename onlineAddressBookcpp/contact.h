@@ -18,5 +18,6 @@ protected:
 	void editContact(string email) override;
 	void viewContacts(string email) override;
 	void viewByGroup(string email) override;
+	void viewGroupNone(string email) override;
 	void setContact(string name, string phoneNo, string address, vector<string> group) override;
 };

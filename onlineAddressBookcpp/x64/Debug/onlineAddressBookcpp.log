@@ -1,4 +1,6 @@
 ﻿  contact.cpp
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(618,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(643,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(340,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(746,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\yogar\source\repos\onlineAddressBookcpp\onlineAddressBookcpp\contact.cpp(773,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+LINK : warning LNK4067: ambiguous entry point; selected 'mainCRTStartup'
   onlineAddressBookcpp.vcxproj -> C:\Users\yogar\source\repos\onlineAddressBookcpp\x64\Debug\onlineAddressBookcpp.exe
